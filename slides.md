@@ -6,12 +6,6 @@ theme:
   # Otherwise specify the path for it
   path: themes/hackerbutcute.yaml
 ---
-# Presented in
----
-## Presenterm by Matias Fontanini
-
-[https://github.com/mfontanini/presenterm](https://github.com/mfontanini/presenterm)
-<!-- end_slide -->
 # Lain's NAVI
 ---
 ![](images/lainmac.jpg)
@@ -50,7 +44,7 @@ Cat girl hacker
 - o mais comum é utilizarmos sinais TTL (0v == 0, 5v == 1), e existem dispositivos que interpretam esses sinais em série (como bits, e aí ASCII)
 - UART é um circuito que faz transmissão (Tx) e recepção (Rx) de sinais 
 
-![](images/ftdi.jpg)
+![](images/ftdi-scale.jpg)
 
 <!-- end_slide -->
 # Curious Annie finds an opportunity to hack 🤔
@@ -66,7 +60,7 @@ Normalmente, placas com UART possuem três pinos: Rx, Tx e GND.
 
 Porém, placas mãe possuem um header COM. 
 
-![](images/comport.jpg)
+![](images/comport-scale.jpg)
 
 Aparentemente, NSIN == Rx, NSOUT == Tx, e temos um GND também.
 <!-- end_slide -->
@@ -81,7 +75,7 @@ Aparemente, placas mãe operam em RS232 (-12V, +12V), e não TTL (0v, 5v)! Eu po
 
 Mas! Eu não sabia de um detalhe muito importante...
 
-![](images/ttl-to-rs232.png)
+![](images/ttl-to-rs232-scale.jpg)
 <!-- end_slide -->
 Gambiarra um: tentativa de reduzir a voltagem 
 
@@ -97,23 +91,23 @@ Depois de um dia inteiro rebootando o computador (e bloqueando meu TPM...), eu d
 Nada fazia sentido :c
 Até que corrigi o baud rate e inverti os bits:
 
-![](images/asus.png)
+![](images/asus-scale.jpg)
 
 DEU BOM! Os bits estavam invertidos.
 <!-- end_slide -->
 
 Conversando com um pessoal do grupo de Hardware Hacking, eu descobri que o sinal de RS232 é diferente do TTL! 
 
-![](images/ttl-to-rs232.png)
+![](images/ttl-to-rs232-scale-2.jpg)
 
 Eu precisava de algo para converter RS232 em TTL e vice-versa
 
 Behold: MAX232!
 
-![](images/max232.png)
+![](images/max232-scale.jpg)
 <!-- end_slide -->
 
-![](images/max232-circuit.jpg)
+![](images/max232-circuit-scale.jpg)
 <!-- end_slide -->
 
 ![](images/max232circuit.jpg)
@@ -159,4 +153,21 @@ Eu descobri uma ferramenta muito massa também pra rodar testes de pytest em dis
 [](https://blog.retpolanne.com/kernel-dev/renesas/2023/06/20/renesas.html)
 <!-- end_slide -->
 ![](images/xiaomiuart.jpg)
+<!-- end_slide -->
+# Thank you
+
+![](images/anya-scale-30.jpg)
+
+[https://github.com/retpolanne](https://github.com/retpolanne)
+
+[https://blog.retpolanne.com](https://blog.retpolanne.com)
+
+**Me pergunte sobre meu username**
+
+<!-- end_slide -->
+# Presented in glorious Presenterm
+Direto do terminal, escrito em Rust.
+## Presenterm by Matias Fontanini
+
+[https://github.com/mfontanini/presenterm](https://github.com/mfontanini/presenterm)
 <!-- end_slide -->

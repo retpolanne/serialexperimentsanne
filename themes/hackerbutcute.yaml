@@ -3,7 +3,7 @@ default:
   margin: 5
   colors:
     foreground: "rgb_(209,176,250)"
-    background: "rgb_(4,3,18)"
+      #background: "rgb_(4,3,18)"
 
 slide_title:
   alignment: center
