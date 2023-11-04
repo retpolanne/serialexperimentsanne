@@ -29,11 +29,17 @@ Cat girl hacker
 
 - Serial Experiments Anne - o incrível mundo do UART
 
+- Lain no VHS
+
 - The PHYnal Countdown
 
 - Miscelânea
 <!-- end_slide -->
 # Serial Experiments Anne - o incrível mundo do UART
+
+- Vamos falar sobre como conversar com dispositivos usando portas serial
+
+- TTL (Transistor-Transistor Logic), UART (universal asynchronous receiver-transmitter) e RS232 (Recommended Standard 232)
 ---
 ![](images/lainio.jpg)
 <!-- end_slide -->
@@ -76,8 +82,10 @@ Aparemente, placas mãe operam em RS232 (-12V, +12V), e não TTL (0v, 5v)! Eu po
 Mas! Eu não sabia de um detalhe muito importante...
 
 ![](images/ttl-to-rs232-scale.jpg)
+
+*Já explico isso aqui :P*
 <!-- end_slide -->
-Gambiarra um: tentativa de reduzir a voltagem 
+Tentativa de reduzir a voltagem - com ajuda de meu amigo (e ex namorado) Kawai, nós reduzimos a voltagem com um monte de resistores.
 
 ![](images/voltage.jpg)
 
@@ -100,8 +108,13 @@ Conversando com um pessoal do grupo de Hardware Hacking, eu descobri que o sinal
 
 ![](images/ttl-to-rs232-scale-2.jpg)
 
+TOUT - vermelho - sinal RS232 (-12V ~ +12V)
+
+TIN e ROUT - bege e preto - sinal TTL (0v ~ 5v)
+
 Eu precisava de algo para converter RS232 em TTL e vice-versa
 
+<!-- end_slide -->
 Behold: MAX232!
 
 ![](images/max232-scale.jpg)
@@ -115,7 +128,141 @@ Behold: MAX232!
 
 ![](images/logs.jpg)
 <!-- end_slide -->
+# Serial Experiments Lain em VHS usando Raspberry Pi, Yocto e GStreamer
+
+- Vamos ver sobre Yocto e Gstreamer
+
+- Let's all love Lain
+
+<!-- end_slide -->
+# Let's all love Lain
+- Eu amo Serial Experiments Lain
+
+- Há um tempo atrás eu decidi montar minha própria imagem de Linux para Raspberry Pi usando Yocto
+
+- De repente, eu tive uma ideia aleatória: gravar Lain em VHS usando Raspberry Pi
+
+# Desafio
+
+- Não usar cliente de vídeo no Raspberry Pi
+
+- Fazer stream de conteúdo para o Raspberry Pi com um server RTSP
+
+- A stream tem que ser mais "smooth" possível
+
+- Eu tenho que criar minha própria imagem Linux usando Yocto 
+
+- Eu não posso conectar um teclado direto no Raspberry - tudo tem que ser feito usando serial
+
+# Setup VCR
+
+```
+ -----------                --------
+| raspberry | -rca cable-> |  vcr   |
+ -----------                --------
+      |___ uart
+```
+
+# Setup Client-Server
+
+```
+ -------------      ----------      -----------
+| ffmpeg feed | => | mediamtx | <= | gstreamer |
+ -------------      ----------      -----------
+```
+<!-- end_slide -->
+
+# Um pouco sobre Yocto (bem por cima)
+
+- O Yocto é uma ferramenta para fazer construção de imagens Linux para dispositivos embarcados
+
+- Funciona a partir de camadas (bblayers) e receitas (recipes)
+
+- Recipes são receitas de como compilar e instalar determinados softwares (aquilo que você acha no apt-get por exemplo).
+
+- Camadas são conjuntos de configurações específicas de dispositivo (BSP, board support package) e receitas 
+
+- A partir do Yocto, é possível compilar o kernel e incluir softwares na imagem
+
+<!-- end_slide -->
+# Yocto
+
+![](images/key-dev-elements-scale.jpg)
+
+<!-- end_slide -->
+# BSP e build yocto
+
+- Build Yocto com GStreamer e configuração de Wifi (WPA-Supplicant) [https://github.com/retpolanne/raspberry-pi-image-ansible](https://github.com/retpolanne/raspberry-pi-image-ansible)
+
+- BSP do Raspberry Pi para Yocto [https://meta-raspberrypi.readthedocs.io/en/](https://meta-raspberrypi.readthedocs.io/en/)
+
+- Aprenda Yocto com o curso [Yocto Project and OpenEmbedded development training](https://bootlin.com/training/yocto/) da Bootlin :)
+
+<!-- end_slide -->
+# Um pouco sobre GStreamer
+
+- GStreamer é um framework de multimídia
+
+- Ele funciona com pipelines
+
+- Ele consegue acessar um source como input, fazer encoding/decoding usando software ou hardware (mais _smooth_) e enviar para um sink (onde o vídeo vai ser exibido)
+
+<!-- end_slide -->
+# Um pipeline em alto nível
+
+```
+                          _ video ! parse codec ! decode codec ! sink *
+filesrc ! demultiplexer ! _ audio ! parse codec ! sink *
+```
+
+# Um pipeline em baixo nível 
+
+```
+gst-launch-1.0 filesrc location=/home/root/layer01.mp4 \
+    ! qtdemux name=dmux \
+    dmux.video_0 \
+    ! h264parse \
+    ! v4l2h264dec \
+    ! videoconvert \
+    ! kmssink  \
+    dmux.audio_0 \
+    ! queue \
+    ! aacparse \
+    ! faad \
+    ! autoaudiosink
+```
+
+# Raspberry Pi serial - como exibir vídeo pelo cabo AV
+
+- Foi necessário mudar algumas configurações no build Yocto (que são traduzidas pra o /boot/config.txt da imagem) e.g. overscan e modo de vídeo (PAL ou NTSC)
+
+- O Raspberry Pi só pode ser controlado nesse caso via serial
+
+- Como enviar conteúdo para a tela ligada no AV? É só mandar para o framebuffer certo (/dev/fd1)
+
+- Felizmente, tudo no mundo \*Nix é um arquivo! 
+
+<!-- end_slide -->
+# Brincando com o framebuffer
+
+- framebuffer é basicamente um buffer que armazena bitmaps que são usados para exibir coisas em um monitor
+
+- fbdevsink infelizmente não funciona com aceleração de hardware. Então decidi usar o kmssink!
+
+- v4l (video 4 linux) h264dec faz o hardware decoding do vídeo
+
+- no fim da pipe, eu uso o kmssink para renderizar o vídeo, pois o kmssink usa DRM (Direct Rendering Manager, uma interface do kernel para complex graphics)
+<!-- end_slide -->
+# Resultado
+
+(vídeo do VHS da Lain)
+
+<!-- end_slide -->
 # The PHYnal Countdown
+
+- Mais Yocto
+
+- PHY (Physical Layer)
 ---
 ![](images/orangepi.png)
 <!-- end_slide -->
@@ -130,7 +277,7 @@ Configura uns layers aqui e ali, roda o bitbake e voilá! Uma imagem prontinha p
 ---
 A placa de rede simplesmente não funcionava :c sequer acendia a luz. 
 
-Depois de conferir a device tree source, eu percebi que o suporte upstream a DHCP na Orange Pi One Plus não existia.
+Depois de conferir a device tree source, eu percebi que o suporte upstream a placa de rede na Orange Pi One Plus não existia.
 
 Fui besta de corrigir isso no u-boot ao invés de corrigir no upstream kernel 🤡
 ![](images/upstream.png)
@@ -139,11 +286,12 @@ Tive que olhar alguns datasheets e testar várias coisas pra descobrir o problem
 
 [Embedded systems from ground up: PHYnal Fantasy](https://blog.retpolanne.com/hardware/embedded/2023/07/07/embedded-phy.html)
 
-Eu descobri uma ferramenta muito massa também pra rodar testes de pytest em dispositivos conversando via TTY! 
+Eu descobri uma ferramenta muito massa também pra rodar testes de pytest em dispositivos conversando via TTY ()! 
 
 [](https://blog.retpolanne.com/hardware/embedded/test-automation/2023/07/09/uboot-automation.html)
 <!-- end_slide -->
 ![](images/orangepidhcp.jpg)
+
 <!-- end_slide -->
 # Miscelânea
 ---
