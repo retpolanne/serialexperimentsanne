@@ -302,6 +302,8 @@ Eu descobri uma ferramenta muito massa também pra rodar testes de pytest em dis
 <!-- end_slide -->
 ![](images/xiaomiuart.jpg)
 <!-- end_slide -->
+# Demo do Raspberry Pi da Lain :)
+<!-- end_slide -->
 # Thank you
 
 ![](images/anya-scale-30.jpg)
